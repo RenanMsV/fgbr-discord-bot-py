@@ -1,6 +1,6 @@
 # FlightGearBrasil's Discord Bot
 
-## Manual install
+## Manual deploy
 
 - Python 3.6.8+
 - Make a virtual environment with ```python -m venv venv```
@@ -8,6 +8,6 @@
 - Install dependencies with ```pip install -r requirements.txt```
 - Start the bot with ```python fgbr_discord_bot.py```
 
-## You can also automaticaly deploy with <heroku.com>
+## You can also automatically deploy with <heroku.com>
 
 Working with Discord API 0.16.12
