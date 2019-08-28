@@ -56,7 +56,7 @@ async def on_ready():
     print ("Servidores: {} ({})".format(len(bot.servers), servers_name))
     print ("="*20)
     print ("\n")
-
+    await bot.change_presence(game=discord.Game(name='Digite: !fgbr:ajuda para saber os comandos', type=2))
 
 @bot.event
 async def on_command_error(error, ctx):
