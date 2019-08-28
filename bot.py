@@ -33,7 +33,7 @@ def console_log (ctx, text):
     if ctx != None and str(ctx.message.channel.type) == 'private':
         log_message = f"{ctx.message.author.name}#{ctx.message.author.discriminator} - {text} <None:private> - {datetime.utcnow().strftime('%x %X')}"
     elif ctx != None:
-        log_message = "{}#{} - {} <{}:{}> - {}".format(ctx.message.author.name, ctx.message.author.discriminator, text, ctx.message.channel.name, ctx.message.server.name, datetime.utcnow().strftime('%x %X'))
+        log_message = f"{ctx.message.author.name}#{ctx.message.author.discriminator} - {text} <{ctx.message.channel.name}:{ctx.message.server.name}> - {datetime.utcnow().strftime('%x %X')}"
     elif ctx == None:
         log_message = text
 
@@ -44,19 +44,19 @@ def console_log (ctx, text):
 charts_types = [ ["ADC","Carta de Aérodromo"] , ["IAC", "Carta de Aproximação por Instrumentos"], ["PDC", "Carta de Estacionamento de Aérodromo"], ["SID", "Carta de Saída Normalizada - IFR"], ["STAR", "Carta de Chegada Normalizada - IFR"], ["VAC", "Carta de Aproximação Visual - VFR"] ]
 charts_types_string = "\n"
 for chart_type in charts_types:
-    charts_types_string += ("{} : {}\n".format(chart_type[0], chart_type[1]))
+    charts_types_string += f"{chart_type[0]} : {chart_type[1]}\n"
 
-console_log(None, "Discord Python API v{}\nPython {}\n{}".format(discord.__version__, sys.version, os.popen('pip freeze').read()))
+console_log(None, f"Discord Python API v{discord.__version__}\nPython {sys.version}\n{os.popen('pip freeze').read()}")
 
 @bot.event
 async def on_ready():
     print ("Logado com sucesso!")
-    print ("Meu nome: {}#{}".format(bot.user.name, bot.user.discriminator))
+    print (f"Meu nome: {bot.user.name}#{bot.user.discriminator}")
     print (f"Meu ID: {bot.user.id}")
     servers_name = ""
     for server in bot.servers:
-        servers_name += "<{}>".format(server.name)
-    print ("Servidores: {} ({})".format(len(bot.servers), servers_name))
+        servers_name += f"<{server.name}>"
+    print (f"Servidores: {len(bot.servers)} ({servers_name})")
     print ("="*20)
     print ("\n")
     await bot.change_presence(game=discord.Game(name='Digite: !fgbr:ajuda para saber os comandos', type=2))
@@ -70,32 +70,32 @@ async def on_command_error(error, ctx):
     elif isinstance(error, commands.DisabledCommand):
         await bot.send_message(ctx.message.channel, "***Erro***: Comando desabilitado.\n:x:")
     elif isinstance(error, commands.CommandNotFound):
-        await bot.send_message(ctx.message.channel, "***Erro***: Comando não existente. Verifique o comando digitado.\nDigite {}ajuda para saber os comandos.\n:x:".format(bot.command_prefix))
+        await bot.send_message(ctx.message.channel, f"***Erro***: Comando não existente. Verifique o comando digitado.\nDigite {bot.command_prefix}ajuda para saber os comandos.\n:x:")
     elif isinstance(error, commands.MissingRequiredArgument):
         await bot.send_message(ctx.message.channel, "***Erro***: Algumas informações deste comando estão faltando.\nVerifique se o comando foi digitado corretamente.\n:x:")
 
 @bot.command(pass_context=True)
 async def info(ctx, user: discord.Member):
-    embed = discord.Embed(title="Perfil de: {}".format(user.name), description="Aqui está o que eu pude encontrar.", color=0x00ff00)
+    embed = discord.Embed(title=f"Perfil de: {user.name}", description="Aqui está o que eu pude encontrar.", color=0x00ff00)
     embed.add_field(name="Nome", value=user.name, inline=True)
     embed.add_field(name="ID", value=user.id, inline=True)
     embed.add_field(name="Status", value=user.status, inline=True)
     embed.add_field(name="Cargo mais alto", value=user.top_role)
-    d = datetime.strptime("{}".format(user.joined_at).split('.')[0], "%Y-%m-%d %H:%M:%S")
+    d = datetime.strptime(f"{user.joined_at}".split('.')[0], "%Y-%m-%d %H:%M:%S")
     months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
-    embed.add_field(name="Entrou em", value="{} de {} de {} as {}h {}m {}s".format(d.day, months[d.month-1], d.year,d.hour-3,d.minute,d.second))
+    embed.add_field(name="Entrou em", value=f"{d.day} de {months[d.month-1]} de {d.year} as {d.hour-3}h {d.minute}m {d.second}s")
     embed.set_thumbnail(url=user.avatar_url)
     await bot.say(embed=embed)
-    console_log(ctx, "(/info)")
+    console_log(ctx, f"(/info:{user.name})")
 
 @info.error
 async def info_error(ctx, error):
-    await bot.say("***Erro***: Certifique de ter digitado o nome do usuário\n***Uso correto***: {}info @nome".format(bot.command_prefix))	
+    await bot.say(f"***Erro***: Certifique de ter digitado o nome do usuário\n***Uso correto***: {bot.command_prefix}info @nome")	
 
 @bot.command(pass_context=True)
 async def serverinfo(ctx):
-    embed = discord.Embed(name="{}'s info".format(ctx.message.server.name), description="Aqui está o que eu pude encontrar.", color=0x00ff00)
-    embed.set_author(name="Informações do Servidor: {}".format(ctx.message.server.name))
+    embed = discord.Embed(name=f"{ctx.message.server.name}'s info", description="Aqui está o que eu pude encontrar.", color=0x00ff00)
+    embed.set_author(name=f"Informações do Servidor: {ctx.message.server.name}")
     embed.add_field(name="ID", value=ctx.message.server.id, inline=True)
     embed.add_field(name="Cargos", value=len(ctx.message.server.roles), inline=True)
     embed.add_field(name="Membros", value=len(ctx.message.server.members))
@@ -105,7 +105,7 @@ async def serverinfo(ctx):
 
 @bot.command(pass_context=True)
 async def ajuda(ctx):
-    await bot.say("***Comandos***:\n\n**{0}info @usuario**: Mostra informações sobre um usuário.\n**{0}serverinfo**: Exibe informações sobre o servidor.\n**{0}carta icao tipo_de_carta**: Exibe cartas aéronauticas do aéroporto especificado.\n**{0}ajuda**: Exibe este texto de ajuda.".format(bot.command_prefix))
+    await bot.say(f"***Comandos***:\n\n**{bot.command_prefix}info @usuario**: Mostra informações sobre um usuário.\n**{0}serverinfo**: Exibe informações sobre o servidor.\n**{bot.command_prefix}carta icao tipo_de_carta**: Exibe cartas aéronauticas do aéroporto especificado.\n**{bot.command_prefix}ajuda**: Exibe este texto de ajuda.")
     console_log(ctx, "(/ajuda)")
 
 @bot.command(pass_context=True)
@@ -114,14 +114,14 @@ async def carta(ctx, icao : str, tipo : str):
     tipo = tipo.upper()
     embed = discord.Embed(title="Resultado(s) da pesquisa:", description="Aqui está o que eu pude encontrar.", color=0xF35EFF)
     embed.set_footer(text="dados cedidos por Aisweb")
-    embed.set_author(name="Procurando cartas {} de ***{}***".format(tipo, icao))
+    embed.set_author(name=f"Procurando cartas {tipo} de ***{icao}***")
     embed.set_thumbnail(url="https://bunkr-private-prod.s3.amazonaws.com/8/a/e/8aed7d70-aa7a-4744-ad31-2b16ad729ab7_orig.jpg")
     tipo_correto = False
     for chart_type in charts_types:
         if tipo == chart_type[0]:
             tipo_correto = True
     if tipo_correto == False:   
-        embed.add_field(name="Oops. Tipo de Carta Incorreto", value="Verifique o Tipo de Carta digitado.\n\nTipos Aceitos: {}\nExemplo: {}carta SBGR ADC".format(charts_types_string, bot.command_prefix))
+        embed.add_field(name="Oops. Tipo de Carta Incorreto", value=f"Verifique o Tipo de Carta digitado.\n\nTipos Aceitos: {charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC")
     content = url_request_content(f"http://www.aisweb.aer.mil.br/api/?apiKey={BOT_AIS_KEY}&apiPass={BOT_AIS_TOKEN}&area=cartas&IcaoCode={icao}&tipo={tipo}")
     tree = etree.fromstring(content)
     for item in tree.iter('item'):
@@ -134,7 +134,7 @@ async def carta(ctx, icao : str, tipo : str):
 @carta.error
 async def carta_error(error, ctx):
     if isinstance(error, commands.errors.MissingRequiredArgument):
-        return await bot.say("***Erro***: Certifique-se de ter digitado o ICAO e o tipo de carta corretamente.\n\nTipos Aceitos: {}\nExemplo: {}carta SBGR ADC".format(charts_types_string, bot.command_prefix))
+        return await bot.say(f"***Erro***: Certifique-se de ter digitado o ICAO e o tipo de carta corretamente.\n\nTipos Aceitos: {charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC")
 
 def url_request_content(url):
     return urllib.request.urlopen(url).read()
