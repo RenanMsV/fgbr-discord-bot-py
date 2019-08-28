@@ -30,10 +30,13 @@ if path.exists('log.log'):
 logging.basicConfig(filename='log.log',level=logging.DEBUG)
 
 def console_log (ctx, text):
-    if ctx != None:
+    if ctx != None and str(ctx.message.channel.type) == 'private':
+        log_message = f"{ctx.message.author.name}#{ctx.message.author.discriminator} - {text} <None:private> - {datetime.utcnow().strftime('%x %X')}"
+    elif ctx != None:
         log_message = "{}#{} - {} <{}:{}> - {}".format(ctx.message.author.name, ctx.message.author.discriminator, text, ctx.message.channel.name, ctx.message.server.name, datetime.utcnow().strftime('%x %X'))
-    else:
+    elif ctx == None:
         log_message = text
+
     print(log_message)
     logging.debug(log_message)
 
