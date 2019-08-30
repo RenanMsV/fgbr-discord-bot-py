@@ -52,13 +52,14 @@ for chart_type in charts_types:
     charts_types_string += f'{chart_type[0]} : {chart_type[1]}\n'
 
 # logging
-if path.exists('log.log'):
+if path.exists('./log.log'):
     try:
-        os.remove('log_old.log')        
-    except:
-        pass
-    os.rename('log.log', 'log_old.log')
-logging.basicConfig(filename='log.log',level=logging.DEBUG)
+        if path.exists('./log_old.log'):
+            os.remove('./log_old.log')
+        os.rename('./log.log', './log_old.log')
+    except Exception as e:
+        console_log(None, f'Failed to setup log file: {str(e)}')
+logging.basicConfig(filename='./log.log',level=logging.DEBUG)
 
 console_log(None, f'Discord Python API v{discord.__version__}\nPython {sys.version}\n{os.popen("pip freeze").read()}')
 ###################################
