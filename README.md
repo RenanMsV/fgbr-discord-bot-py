@@ -2,7 +2,7 @@
 
 ## Manual deploy and run
 
-- Required Python 3.6.8+
+- Required Python 3.7.3
 - Make a virtual environment with ```python -m venv venv```
 - Enable the virtual environment mode with ```call ./venv/scripts/activate``` for windows or ```source ./venv/bin/activate``` for linux
 - Install dependencies with ```pip install -r requirements.txt```
