@@ -16,4 +16,4 @@
 
 ## You can also automatically deploy and host for free with <heroku.com>
 
-Working with Discord API 0.16.12
+Working with Discord API 1.0.1
