@@ -7,7 +7,7 @@
 - Enable the virtual environment mode with ```call ./venv/scripts/activate``` for windows or ```source ./venv/bin/activate``` for linux
 - Install dependencies with ```pip install -r requirements.txt```
 - Setup the environment variables, 3 are needed:
-  - BOT_TOKEN (Discord's bot secret token) 
+  - BOT_TOKEN (Discord's bot secret token)
   - BOT_AIS_KEY (AISWEB API key)
   - BOT_AIS_TOKEN (AISWEB API pass)
 - Here you can see how to use and request your [Discord's bot token](https://discordapp.com/developers/applications/)
