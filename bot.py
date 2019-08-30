@@ -147,10 +147,10 @@ async def carta(ctx, icao : str, tipo : str):
             tipo_correto = True
     if tipo_correto == False:   
         embed.add_field(name='Oops. Tipo de Carta Incorreto', value=f'Verifique o Tipo de Carta digitado.\n\nTipos Aceitos: {charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC')
-    content = url_request_content(f'http://www.aisweb.aer.mil.br/api/?apiKey={BOT_AIS_KEY}&apiPass={BOT_AIS_TOKEN}&area=cartas&IcaoCode={icao}&tipo={tipo}')
+    content = url_request_content(f'https://www.aisweb.aer.mil.br/api/?apiKey={BOT_AIS_KEY}&apiPass={BOT_AIS_TOKEN}&area=cartas&IcaoCode={icao}&tipo={tipo}')
     tree = etree.fromstring(content)
     for item in tree.iter('item'):
-        embed.add_field(name=item.find('nome').text, value=item.find('link').text.split(';')[0], inline=True)
+        embed.add_field(name=item.find('nome').text, value=item.find('link').text.split(';')[0].replace('http://', 'https://'), inline=True)
     if len(embed.fields) == 0:
         embed.add_field(name='Oops. Não encontrei nada', value='Verifique o ICAO digitado (só possuimos suporte a aeroportos brasileiros).')
     await ctx.send(embed=embed)
