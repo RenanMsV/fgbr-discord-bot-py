@@ -13,17 +13,19 @@ import os
 from os import path
 
 ###################################
-# 
+#
 # UTILITIES #
 def isDM(channel):
     return (isinstance(channel, discord.DMChannel) or isinstance(channel, discord.GroupChannel))
 
+def getUtcNow():
+    return datetime.utcnow().strftime('%x %X')
+
 def console_log (ctx, text):
-    now = datetime.utcnow().strftime('%x %X')
     if ctx != None and isDM(ctx.message.channel) == True:
-        log_message = f'{ctx.message.author.name}#{ctx.message.author.discriminator} - {text} <None:private> - {now}'
+        log_message = f'{ctx.message.author.name}#{ctx.message.author.discriminator} - {text} <None:private> - {getUtcNow()}'
     elif ctx != None:
-        log_message = f'{ctx.message.author.name}#{ctx.message.author.discriminator} - {text} <{ctx.message.channel.name}:{ctx.message.guild.name}> - {now}'
+        log_message = f'{ctx.message.author.name}#{ctx.message.author.discriminator} - {text} <{ctx.message.channel.name}:{ctx.message.guild.name}> - {getUtcNow()}'
     elif ctx == None:
         log_message = text
     print(log_message)
@@ -34,7 +36,7 @@ def url_request_content(url):
 ###################################
 
 ###################################
-# 
+#
 # SETUP #
 
 bot = commands.Bot(command_prefix='!fgbr:')
@@ -65,7 +67,7 @@ console_log(None, f'Discord Python API v{discord.__version__}\nPython {sys.versi
 ###################################
 
 ###################################
-# 
+#
 # EVENTS #
 
 @bot.event
@@ -77,14 +79,14 @@ async def on_ready():
         guilds_name += f'<{guild.name}>'
 
     print (f'Servidores: {len(bot.guilds)} ({guilds_name})\n', '#'*20,'\n')
-    
+
     game = discord.Game(name='Digite: !fgbr:ajuda para saber os comandos', type=2)
     await bot.change_presence(activity=game)
 
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.NoPrivateMessage):
-        #await bot.send_typing(ctx.message.channel) # enable display of typing symbol in discord 
+        #await bot.send_typing(ctx.message.channel) # enable display of typing symbol in discord
         #await asyncio.sleep(1)
         await ctx.send('***Erro***: Este comando não pode ser usado em mensagens privadas.\n:x:')
     elif isinstance(error, commands.DisabledCommand):
@@ -94,10 +96,34 @@ async def on_command_error(ctx, error):
         console_log(ctx, f'(CommNotFound: {ctx.message.content})')
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('***Erro***: Algumas informações deste comando estão faltando.\nVerifique se o comando foi digitado corretamente.\n:x:')
+
+@bot.event
+async def on_member_join(user : discord.Member):
+    console_log(None, f'{user.name}#{user.discriminator} - Joined <None:{user.guild.name}> - {getUtcNow()}')
+    embed=discord.Embed(title=f'Bem vindo {user.name} ao servidor {user.guild.name}', description='Aqui estão algumas dicas e sugestões:', color=0x8080ff)
+    embed.set_thumbnail(url=user.guild.icon_url)
+    embed.add_field(name='Baixe a versão mais atualizada em:', value='http://flightgear.org/download/', inline=True)
+    embed.add_field(name='Para baixar e instalar novas aéronaves visite:', value='http://www.flightgear.org/download/download-aircraft', inline=True)
+    embed.add_field(name='Para instalar novos cenários veja nos videos:', value='https://www.youtube.com/watch?v=0q2QjHTX0bI https://www.youtube.com/watch?v=07mL9mmeuY4', inline=True)
+    embed.add_field(name='Para aprender a fazer seu primeiro voo completo assista a playlist:', value='https://www.youtube.com/playlist?list=PLtAHK4H-AKPZKFii9ou5thJkDvIbv76pO', inline=True)
+    embed.add_field(name='Para um tutorial basico completo no Cessna 172 assista a playlist:', value='https://www.youtube.com/playlist?list=PLdcRNHZa2Ew-0KKUn1xY3n-DZn47dz9P5\n\u200b', inline=True)
+    embed.add_field(name='Ferramentas opcionais:', value='\n\u200b', inline=True)
+    embed.add_field(name='Airac 2018:', value='https://goo.gl/CQUkRh https://goo.gl/5Zoa9N', inline=True)
+    embed.add_field(name='REH Rotas Especiais de Helicopteros:', value='https://goo.gl/W6Zzj3', inline=True)
+    embed.add_field(name='ORCAM batch:', value='https://goo.gl/dvaSvI', inline=False)
+    embed.add_field(name='Trocar Sensibilidade do Mouse FlightGear:', value='https://goo.gl/Ltq5sQ', inline=True)
+    embed.add_field(name='FlightGear CCLeaner Limpar/Corrigir problemas:', value='https://goo.gl/mE4BCF\n\u200b', inline=True)
+    embed.add_field(name='Youtube - Canais parceiros recomendados:', value='\n\u200b', inline=True)
+    embed.add_field(name='FlightGear Brasil:', value='https://www.youtube.com/channel/UCJZF1cxFP5nxLVaALB5CVPw', inline=True)
+    embed.add_field(name='Decomplicando FlightGear:', value='https://www.youtube.com/channel/UCmls7JOzVOYgEl9zMQg6yuA', inline=True)
+    embed.add_field(name='Groo TV :', value='https://www.youtube.com/channel/UCVgIRUuubxbpEPfIlsZjQNA\n\u200b', inline=True)
+    embed.add_field(name='Divulgue o servidor convidando seus amigos!', value='\n\u200b', inline=True)
+    embed.set_footer(text="Desejamos-lhe otimos voos! :D")
+    await user.send(embed=embed)
 ###################################
 
 ###################################
-# 
+#
 # COMMANDS #
 
 @bot.command()
@@ -146,7 +172,7 @@ async def carta(ctx, icao : str, tipo : str):
     for chart_type in charts_types:
         if tipo == chart_type[0]:
             tipo_correto = True
-    if tipo_correto == False:   
+    if tipo_correto == False:
         embed.add_field(name='Oops. Tipo de Carta Incorreto', value=f'Verifique o Tipo de Carta digitado.\n\nTipos Aceitos: {charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC')
     content = url_request_content(f'https://www.aisweb.aer.mil.br/api/?apiKey={BOT_AIS_KEY}&apiPass={BOT_AIS_TOKEN}&area=cartas&IcaoCode={icao}&tipo={tipo}')
     tree = etree.fromstring(content)
