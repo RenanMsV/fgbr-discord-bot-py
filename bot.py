@@ -46,10 +46,10 @@ BOT_AIS_KEY = str(os.environ.get('BOT_AIS_KEY'))
 BOT_AIS_TOKEN = str(os.environ.get('BOT_AIS_TOKEN'))
 
 # brazilian charts
-charts_types = [ ['ADC','Carta de Aérodromo'] , ['IAC', 'Carta de Aproximação por Instrumentos'], ['PDC', 'Carta de Estacionamento de Aérodromo'], ['SID', 'Carta de Saída Normalizada - IFR'], ['STAR', 'Carta de Chegada Normalizada - IFR'], ['VAC', 'Carta de Aproximação Visual - VFR'] ]
+charts_types = {'ADC': 'Carta de Aérodromo', 'IAC': 'Carta de Aproximação por Instrumentos', 'PDC': 'Carta de Estacionamento de Aérodromo', 'SID': 'Carta de Saída Normalizada - IFR', 'STAR': 'Carta de Chegada Normalizada - IFR', 'VAC': 'Carta de Aproximação Visual - VFR'}
 charts_types_string = '\n'
 for chart_type in charts_types:
-    charts_types_string += f'{chart_type[0]} : {chart_type[1]}\n'
+    charts_types_string += f'{chart_type} : {charts_types.get(chart_type)}\n'
 
 # logging
 if path.exists('./log.log'):
@@ -166,16 +166,13 @@ async def carta(ctx, icao : str, tipo : str):
     embed.set_footer(text='dados cedidos por Aisweb')
     embed.set_author(name=f'Procurando cartas {tipo} de ***{icao}***')
     embed.set_thumbnail(url='https://raw.githubusercontent.com/flightgearbrasil/fgbr-discord-bot-py/master/assets/img/charts.jpg')
-    tipo_correto = False
-    for chart_type in charts_types:
-        if tipo == chart_type[0]:
-            tipo_correto = True
-    if tipo_correto == False:
+    if tipo not in charts_types:
         embed.add_field(name='Oops. Tipo de Carta Incorreto', value=f'Verifique o Tipo de Carta digitado.\n\nTipos Aceitos: {charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC')
-    items = json.loads(AISWEB(BOT_AIS_KEY, BOT_AIS_TOKEN).cartas({'IcaoCode': icao, 'tipo': tipo}, method='GET', response_type='JSON'))['aisweb']['cartas']
-    items = [items['item']] if items.get('@total') == '1' else items.get('item')
-    for item in items:
-        embed.add_field(name=item.get('nome'), value=item.get('link').split(';')[0].replace('http://', 'https://'), inline=True)
+    else:
+        items = json.loads(AISWEB(BOT_AIS_KEY, BOT_AIS_TOKEN).cartas({'IcaoCode': icao, 'tipo': tipo}, method='GET', response_type='JSON'))['aisweb']['cartas']
+        items = [items['item']] if items.get('@total') == '1' else items.get('item')
+        for item in items:
+            embed.add_field(name=item.get('nome'), value=item.get('link').split(';')[0].replace('http://', 'https://'), inline=True)
     if len(embed.fields) == 0:
         embed.add_field(name='Oops. Não encontrei nada', value='Verifique o ICAO digitado (só possuimos suporte a aeroportos brasileiros).')
     await ctx.send(embed=embed)
