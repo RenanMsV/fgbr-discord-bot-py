@@ -8,7 +8,7 @@ discord.py==1.2.3
 idna==2.6
 multidict==4.5.2
 python-aisweb==1.0.0
-requests==2.18.4
+requests==2.20.0
 urllib3==1.22
 websockets==6.0
 xmltodict==0.11.0
