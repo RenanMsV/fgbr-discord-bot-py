@@ -124,8 +124,8 @@ async def on_member_join(user : discord.Member):
 #
 # COMMANDS #
 
-@bot.command()
-async def ajuda(ctx):
+@bot.command(aliases=['ajuda'])
+async def help(ctx):
     await ctx.send(f'***Comandos***:\n\n**{bot.command_prefix}info @usuario**: Mostra informações sobre um usuário.\n**{0}serverinfo**: Exibe informações sobre o servidor.\n**{bot.command_prefix}carta icao tipo_de_carta**: Exibe cartas aéronauticas do aéroporto especificado.\n**{bot.command_prefix}ajuda**: Exibe este texto de ajuda.')
     console_log(ctx, '(/ajuda)')
 
@@ -158,27 +158,27 @@ async def serverinfo(ctx):
         await ctx.send(embed=embed)
     console_log(ctx, '(/serverinfo)')
 
-@bot.command()
-async def carta(ctx, icao : str, tipo : str):
+@bot.command(aliases=['carta'])
+async def chart(ctx, icao : str, _type : str):
     icao = icao.upper()
-    tipo = tipo.upper()
+    _type = _type.upper()
     embed = discord.Embed(title='Resultado(s) da pesquisa:', description='Aqui está o que eu pude encontrar.', color=0xF35EFF)
     embed.set_footer(text='dados cedidos por Aisweb')
-    embed.set_author(name=f'Procurando cartas {tipo} de ***{icao}***')
+    embed.set_author(name=f'Procurando cartas {_type} de ***{icao}***')
     embed.set_thumbnail(url='https://raw.githubusercontent.com/flightgearbrasil/fgbr-discord-bot-py/master/assets/img/charts.jpg')
-    if tipo not in charts_types:
+    if _type not in charts_types:
         embed.add_field(name='Oops. Tipo de Carta Incorreto', value=f'Verifique o Tipo de Carta digitado.\n\nTipos Aceitos: {charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC')
     else:
-        items = json.loads(AISWEB(BOT_AIS_KEY, BOT_AIS_TOKEN).cartas({'IcaoCode': icao, 'tipo': tipo}, method='GET', response_type='JSON'))['aisweb']['cartas']
+        items = json.loads(AISWEB(BOT_AIS_KEY, BOT_AIS_TOKEN).cartas({'IcaoCode': icao, 'tipo': _type}, method='GET', response_type='JSON'))['aisweb']['cartas']
         items = [items['item']] if items.get('@total') == '1' else items.get('item')
         for item in items:
             embed.add_field(name=item.get('nome'), value=item.get('link').split(';')[0].replace('http://', 'https://'), inline=True)
     if len(embed.fields) == 0:
         embed.add_field(name='Oops. Não encontrei nada', value='Verifique o ICAO digitado (só possuimos suporte a aeroportos brasileiros).')
     await ctx.send(embed=embed)
-    console_log(ctx, f'(/carta:{icao}:{tipo})')
-@carta.error
-async def carta_error(error, ctx):
+    console_log(ctx, f'(/carta:{icao}:{_type})')
+@chart.error
+async def chart_error(error, ctx):
     if isinstance(error, commands.errors.MissingRequiredArgument):
         return await ctx.send(f'***Erro***: Certifique-se de ter digitado o ICAO e o tipo de carta corretamente.\n\nTipos Aceitos: {charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC')
 ###################################
