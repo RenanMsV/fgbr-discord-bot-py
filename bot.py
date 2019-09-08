@@ -165,7 +165,7 @@ async def carta(ctx, icao : str, tipo : str):
     embed = discord.Embed(title='Resultado(s) da pesquisa:', description='Aqui está o que eu pude encontrar.', color=0xF35EFF)
     embed.set_footer(text='dados cedidos por Aisweb')
     embed.set_author(name=f'Procurando cartas {tipo} de ***{icao}***')
-    embed.set_thumbnail(url='https://bunkr-private-prod.s3.amazonaws.com/8/a/e/8aed7d70-aa7a-4744-ad31-2b16ad729ab7_orig.jpg')
+    embed.set_thumbnail(url='https://github.com/flightgearbrasil/fgbr-discord-bot-py/assets/img/charts.jpg?raw=true')
     tipo_correto = False
     for chart_type in charts_types:
         if tipo == chart_type[0]:
