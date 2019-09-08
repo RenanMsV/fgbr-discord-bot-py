@@ -5,12 +5,12 @@ from discord.ext import commands
 from discord.ext.commands import Bot
 import asyncio
 from datetime import datetime
-import urllib.request
-import lxml.etree as etree
 import logging
 import sys
 import os
 from os import path
+from python_aisweb import AISWEB
+import json
 
 ###################################
 #
@@ -31,8 +31,6 @@ def console_log (ctx, text):
     print(log_message)
     logging.debug(log_message)
 
-def url_request_content(url):
-    return urllib.request.urlopen(url).read()
 ###################################
 
 ###################################
@@ -118,7 +116,7 @@ async def on_member_join(user : discord.Member):
     embed.add_field(name='Decomplicando FlightGear:', value='https://www.youtube.com/channel/UCmls7JOzVOYgEl9zMQg6yuA', inline=True)
     embed.add_field(name='Groo TV :', value='https://www.youtube.com/channel/UCVgIRUuubxbpEPfIlsZjQNA\n\u200b', inline=True)
     embed.add_field(name='Divulgue o servidor convidando seus amigos!', value='\n\u200b', inline=True)
-    embed.set_footer(text="Desejamos-lhe otimos voos! :D")
+    embed.set_footer(text='Desejamos-lhe otimos voos! :D')
     await user.send(embed=embed)
 ###################################
 
@@ -174,10 +172,10 @@ async def carta(ctx, icao : str, tipo : str):
             tipo_correto = True
     if tipo_correto == False:
         embed.add_field(name='Oops. Tipo de Carta Incorreto', value=f'Verifique o Tipo de Carta digitado.\n\nTipos Aceitos: {charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC')
-    content = url_request_content(f'https://www.aisweb.aer.mil.br/api/?apiKey={BOT_AIS_KEY}&apiPass={BOT_AIS_TOKEN}&area=cartas&IcaoCode={icao}&tipo={tipo}')
-    tree = etree.fromstring(content)
-    for item in tree.iter('item'):
-        embed.add_field(name=item.find('nome').text, value=item.find('link').text.split(';')[0].replace('http://', 'https://'), inline=True)
+    items = json.loads(AISWEB(BOT_AIS_KEY, BOT_AIS_TOKEN).cartas({'IcaoCode': icao, 'tipo': tipo}, method='GET', response_type='JSON'))['aisweb']['cartas']
+    items = [items['item']] if items.get('@total') == '1' else items.get('item')
+    for item in items:
+        embed.add_field(name=item.get('nome'), value=item.get('link').split(';')[0].replace('http://', 'https://'), inline=True)
     if len(embed.fields) == 0:
         embed.add_field(name='Oops. Não encontrei nada', value='Verifique o ICAO digitado (só possuimos suporte a aeroportos brasileiros).')
     await ctx.send(embed=embed)
