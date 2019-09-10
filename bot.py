@@ -31,6 +31,29 @@ def console_log (ctx, text):
     print(log_message)
     logging.debug(log_message)
 
+def _get_chart(icao: str, _type: str):
+    try:
+        items = json.loads(AISWEB(BOT_AIS_KEY, BOT_AIS_TOKEN).cartas({'IcaoCode': icao, 'tipo': _type}, method='GET', response_type='JSON'))['aisweb']['cartas']
+        if (items.get('@total') == '0'):
+            return False, 'Error: no charts were found'
+        items = [items['item']] if items.get('@total') == '1' else items.get('item')
+        return True, items
+    except Exception as e:
+        if 'Error: method GET not supported at this time!' in str(e):
+            return False, 'Error: connection error'
+
+def _get_user_info(user: discord.User):
+    d = datetime.strptime(f'{user.joined_at}'.split('.')[0], '%Y-%m-%d %H:%M:%S')
+    months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    joined_at = f'{d.day} de {months[d.month-1]} de {d.year} as {d.hour-3}h {d.minute}m {d.second}s'
+    return user.name, user.id, user.status, user.top_role, joined_at, user.avatar_url
+
+def _get_server_info(guild: discord.Guild):
+    return guild.name, guild.id, guild.roles, guild.members, guild.icon_url
+
+def _send_welcome_message(user: discord.User):
+    pass
+
 ###################################
 
 ###################################
@@ -96,7 +119,7 @@ async def on_command_error(ctx, error):
         await ctx.send('***Erro***: Algumas informações deste comando estão faltando.\nVerifique se o comando foi digitado corretamente.\n:x:')
 
 @bot.event
-async def on_member_join(user : discord.Member):
+async def on_member_join(user: discord.Member):
     console_log(None, f'{user.name}#{user.discriminator} - Joined <None:{user.guild.name}> - {getUtcNow()}')
     embed=discord.Embed(title=f'Bem vindo {user.name} ao servidor {user.guild.name}', description='Aqui estão algumas dicas e sugestões:', color=0x8080ff)
     embed.set_thumbnail(url=user.guild.icon_url)
@@ -131,17 +154,16 @@ async def help(ctx):
 
 @bot.command()
 async def info(ctx, user: discord.Member):
-    embed = discord.Embed(title=f'Perfil de: {user.name}', description='Aqui está o que eu pude encontrar.', color=0x00ff00)
-    embed.add_field(name='Nome', value=user.name, inline=True)
-    embed.add_field(name='ID', value=user.id, inline=True)
-    embed.add_field(name='Status', value=user.status, inline=True)
-    embed.add_field(name='Cargo mais alto', value=user.top_role)
-    d = datetime.strptime(f'{user.joined_at}'.split('.')[0], '%Y-%m-%d %H:%M:%S')
-    months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-    embed.add_field(name='Entrou em', value=f'{d.day} de {months[d.month-1]} de {d.year} as {d.hour-3}h {d.minute}m {d.second}s')
-    embed.set_thumbnail(url=user.avatar_url)
+    name, uid, status, top_role, joined_at, avatar_url = _get_user_info(user)
+    embed = discord.Embed(title=f'Perfil de: {name}', description='Aqui está o que eu pude encontrar.', color=0x00ff00)
+    embed.add_field(name='Nome', value=name, inline=True)
+    embed.add_field(name='ID', value=uid, inline=True)
+    embed.add_field(name='Status', value=status, inline=True)
+    embed.add_field(name='Cargo mais alto', value=top_role)
+    embed.add_field(name='Entrou em', value=joined_at)
+    embed.set_thumbnail(url=avatar_url)
     await ctx.send(embed=embed)
-    console_log(ctx, f'(/info:{user.name})')
+    console_log(ctx, f'(/info:{name})')
 @info.error
 async def info_error(ctx, error):
     await ctx.send(f'***Erro***: Certifique de ter digitado o nome do usuário\n***Uso correto***: {bot.command_prefix}info @nome')
@@ -149,12 +171,13 @@ async def info_error(ctx, error):
 @bot.command()
 async def serverinfo(ctx):
     if not isDM(ctx.message.channel):
-        embed = discord.Embed(name=f'{ctx.message.guild.name}\'s info', description='Aqui está o que eu pude encontrar.', color=0x00ff00)
-        embed.set_author(name=f'Informações do Servidor: {ctx.message.guild.name}')
-        embed.add_field(name='ID', value=ctx.message.guild.id, inline=True)
-        embed.add_field(name='Cargos', value=len(ctx.message.guild.roles), inline=True)
-        embed.add_field(name='Membros', value=len(ctx.message.guild.members))
-        embed.set_thumbnail(url=ctx.message.guild.icon_url)
+        name, gid, roles, members, icon_url = _get_server_info(ctx.message.guild)
+        embed = discord.Embed(name=f'{name}\'s info', description='Aqui está o que eu pude encontrar.', color=0x00ff00)
+        embed.set_author(name=f'Informações do Servidor: {name}')
+        embed.add_field(name='ID', value=gid, inline=True)
+        embed.add_field(name='Cargos', value=len(roles), inline=True)
+        embed.add_field(name='Membros', value=len(members))
+        embed.set_thumbnail(url=icon_url)
         await ctx.send(embed=embed)
     console_log(ctx, '(/serverinfo)')
 
@@ -169,17 +192,12 @@ async def chart(ctx, icao : str, _type : str):
     if _type not in charts_types:
         embed.add_field(name='Oops. Tipo de Carta Incorreto', value=f'Verifique o Tipo de Carta digitado.\n\nTipos Aceitos: {charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC')
     else:
-        try:
-            items = json.loads(AISWEB(BOT_AIS_KEY, BOT_AIS_TOKEN).cartas({'IcaoCode': icao, 'tipo': _type}, method='GET', response_type='JSON'))['aisweb']['cartas']
-            if (items.get('@total') == '0'):
-                _type += '@no-charts'
-                raise Exception('Error: no charts were found')
-            items = [items['item']] if items.get('@total') == '1' else items.get('item')
+        response, items = _get_chart(icao, _type)
+        if response:
             for item in items:
                 embed.add_field(name=item.get('nome'), value=item.get('link').split(';')[0].replace('http://', 'https://'), inline=True)
-        except Exception as e:
-            if 'Error: method GET not supported at this time!' in str(e):
-                _type += '@no-host'
+        else:
+            _type += f'@{items}'
     if len(embed.fields) == 0:
         embed.add_field(name='Oops. Não encontrei nada', value='Verifique o ICAO digitado (só possuimos suporte a aeroportos brasileiros).')
     await ctx.send(embed=embed)
