@@ -6,6 +6,7 @@ from discord.ext.commands import Bot
 import asyncio
 from datetime import datetime
 import logging
+from logging.handlers import RotatingFileHandler
 import sys
 import os
 from os import path
@@ -76,14 +77,11 @@ for chart_type in charts_types:
     charts_types_string += f'{chart_type} : {charts_types.get(chart_type)}\n'
 
 # logging
-if path.exists('./log.log'):
-    try:
-        if path.exists('./log_old.log'):
-            os.remove('./log_old.log')
-        os.rename('./log.log', './log_old.log')
-    except Exception as e:
-        console_log(None, f'Failed to setup log file: {str(e)}')
-logging.basicConfig(filename='./log.log',level=logging.DEBUG)
+logging.basicConfig(
+        handlers=[RotatingFileHandler('./log.log', mode='w', maxBytes=2000000, backupCount=2)],
+        level=logging.DEBUG,
+        format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
+        datefmt='%Y-%m-%dT%H:%M:%S')
 
 console_log(None, f'Discord Python API v{discord.__version__}\nPython {sys.version}\n{os.popen("pip freeze").read()}')
 ###################################

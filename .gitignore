@@ -105,3 +105,6 @@ venv.bak/
 
 # Visual studio code
 .vscode
+
+#logging stuff
+log.log.*
