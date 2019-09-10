@@ -13,6 +13,7 @@ from os import path
 from python_aisweb import AISWEB
 import json
 import argparse
+import requests_cache
 
 ###################################
 #
@@ -82,6 +83,9 @@ logging.basicConfig(
         level=logging.DEBUG,
         format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
         datefmt='%Y-%m-%dT%H:%M:%S')
+
+# cache
+requests_cache.install_cache(cache_name='aiweb_cache', backend='sqlite', expire_after=604800)
 
 console_log(None, f'Discord Python API v{discord.__version__}\nPython {sys.version}\n{os.popen("pip freeze").read()}')
 ###################################
