@@ -11,6 +11,7 @@ import os
 from os import path
 from python_aisweb import AISWEB
 import json
+import argparse
 
 ###################################
 #
@@ -103,6 +104,12 @@ async def on_ready():
 
     game = discord.Game(name='Digite: !fgbr:ajuda para saber os comandos', type=2)
     await bot.change_presence(activity=game)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--test', dest='testing', action='store_const', const=True, default=None, help='Test bot script and shutdown')
+    args = parser.parse_args()
+    if args.testing:
+        await test()
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -208,4 +215,28 @@ async def chart_error(error, ctx):
         return await ctx.send(f'***Erro***: Certifique-se de ter digitado o ICAO e o tipo de carta corretamente.\n\nTipos Aceitos: {charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC')
 ###################################
 
+###################################
+#
+# TESTING #
+
+async def test():
+    try:
+        console_log(None, 'Testing bot...')
+        guild = bot.get_guild(int(os.environ.get('BOT_TEST_GUILD_ID')))
+        user = guild.get_member(int(os.environ.get('BOT_TEST_USER_ID')))
+        resp, items = _get_chart('SBBR', 'ADC')
+        console_log(None, f'(testing:_get_chart(SBBR, ADC), result= {resp}, {items})')
+        a,b,c,d,e,f = _get_user_info(user)
+        console_log(None, f'(testing:_get_user_info(), result= {a,b,c,d,e,f})')
+        a,b,c,d,e = _get_server_info(guild)
+        console_log(None, f'(testing:_get_server_info(), result= {a,b,c,d,e})')
+        await on_member_join(user)
+        console_log(None, f'(testing:on_member_join(), result= OK, message sent)')
+        console_log(None, 'Test done! Exiting bot')
+    except Exception as e:
+        console_log(None, f'Error running test script: {e}')
+        raise e
+    await bot.logout()
+
 bot.run(BOT_TOKEN)
+exit(0)
