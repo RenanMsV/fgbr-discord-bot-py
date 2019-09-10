@@ -169,10 +169,17 @@ async def chart(ctx, icao : str, _type : str):
     if _type not in charts_types:
         embed.add_field(name='Oops. Tipo de Carta Incorreto', value=f'Verifique o Tipo de Carta digitado.\n\nTipos Aceitos: {charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC')
     else:
-        items = json.loads(AISWEB(BOT_AIS_KEY, BOT_AIS_TOKEN).cartas({'IcaoCode': icao, 'tipo': _type}, method='GET', response_type='JSON'))['aisweb']['cartas']
-        items = [items['item']] if items.get('@total') == '1' else items.get('item')
-        for item in items:
-            embed.add_field(name=item.get('nome'), value=item.get('link').split(';')[0].replace('http://', 'https://'), inline=True)
+        try:
+            items = json.loads(AISWEB(BOT_AIS_KEY, BOT_AIS_TOKEN).cartas({'IcaoCode': icao, 'tipo': _type}, method='GET', response_type='JSON'))['aisweb']['cartas']
+            if (items.get('@total') == '0'):
+                _type += '@no-charts'
+                raise Exception('Error: no charts were found')
+            items = [items['item']] if items.get('@total') == '1' else items.get('item')
+            for item in items:
+                embed.add_field(name=item.get('nome'), value=item.get('link').split(';')[0].replace('http://', 'https://'), inline=True)
+        except Exception as e:
+            if 'Error: method GET not supported at this time!' in str(e):
+                _type += '@no-host'
     if len(embed.fields) == 0:
         embed.add_field(name='Oops. Não encontrei nada', value='Verifique o ICAO digitado (só possuimos suporte a aeroportos brasileiros).')
     await ctx.send(embed=embed)
