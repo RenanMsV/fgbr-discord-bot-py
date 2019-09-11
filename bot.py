@@ -74,9 +74,7 @@ BOT_AIS_TOKEN = str(os.environ.get('BOT_AIS_TOKEN'))
 
 # brazilian charts
 charts_types = {'ADC': 'Carta de Aérodromo', 'IAC': 'Carta de Aproximação por Instrumentos', 'PDC': 'Carta de Estacionamento de Aérodromo', 'SID': 'Carta de Saída Normalizada - IFR', 'STAR': 'Carta de Chegada Normalizada - IFR', 'VAC': 'Carta de Aproximação Visual - VFR'}
-charts_types_string = '\n'
-for chart_type in charts_types:
-    charts_types_string += f'{chart_type} : {charts_types.get(chart_type)}\n'
+charts_types_string = '\n'.join([f'{chart_type} : {charts_types.get(chart_type)}' for chart_type in charts_types])
 
 # logging
 logging.basicConfig(
@@ -99,10 +97,7 @@ console_log(None, f'Discord Python API v{discord.__version__}\nPython {sys.versi
 async def on_ready():
     print ('Bot autenticado com sucesso!', f'\nMeu nome: {bot.user.name}#{bot.user.discriminator}', f'\nMeu ID: {bot.user.id}')
 
-    guilds_name = ''
-    for guild in bot.guilds:
-        guilds_name += f'<{guild.name}>'
-
+    guilds_name = ','.join([guild.name for guild in bot.guilds])
     print (f'Servidores: {len(bot.guilds)} ({guilds_name})\n', '#'*20,'\n')
 
     game = discord.Game(name='Digite: !fgbr:ajuda para saber os comandos', type=2)
@@ -203,7 +198,7 @@ async def chart(ctx, icao : str, _type : str):
     embed.set_author(name=f'Procurando cartas {_type} de ***{icao}***')
     embed.set_thumbnail(url='https://raw.githubusercontent.com/flightgearbrasil/fgbr-discord-bot-py/master/assets/img/charts.jpg')
     if _type not in charts_types:
-        embed.add_field(name='Oops. Tipo de Carta Incorreto', value=f'Verifique o Tipo de Carta digitado.\n\nTipos Aceitos: {charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC')
+        embed.add_field(name='Oops. Tipo de Carta Incorreto', value=f'Verifique o Tipo de Carta digitado.\n\nTipos Aceitos:\n{charts_types_string}\nExemplo: {bot.command_prefix}carta SBGR ADC')
     else:
         response, items = _get_chart(icao, _type)
         if response:
