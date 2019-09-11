@@ -85,7 +85,7 @@ logging.basicConfig(
         datefmt='%Y-%m-%dT%H:%M:%S')
 
 # cache
-requests_cache.install_cache(cache_name='aiweb_cache', backend='sqlite', expire_after=604800)
+requests_cache.install_cache(cache_name='aisweb_cache', backend='sqlite', expire_after=86400)
 
 console_log(None, f'Discord Python API v{discord.__version__}\nPython {sys.version}\n{os.popen("pip freeze").read()}')
 ###################################
@@ -240,5 +240,6 @@ async def test():
         raise e
     await bot.logout()
 
-bot.run(BOT_TOKEN)
-exit(0)
+if __name__ == '__main__':
+    bot.run(BOT_TOKEN)
+    exit(0)

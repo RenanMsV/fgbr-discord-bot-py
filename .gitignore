@@ -108,3 +108,6 @@ venv.bak/
 
 #logging stuff
 log.log.*
+
+# cache stuff
+*.sqlite
