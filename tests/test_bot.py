@@ -32,25 +32,25 @@ class TestBot(unittest.TestCase):
         """
         pass
 
-    def test_rotaer(self):
+    def test_getrotaer(self):
         """
         Test if it can get metar from aisweb
         """
         pass
 
-    def test_infotemp(self):
+    def test_getinfotemp(self):
         """
         Test if it can get infotemp from aisweb
         """
         pass
 
-    def test_sol(self):
+    def test_getsol(self):
         """
         Test if it can get sol from aisweb
         """
         pass
 
-    def test_waypoints(self):
+    def test_getwaypoints(self):
         """
         Test if it can get waypoints info from aisweb
         """
