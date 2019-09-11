@@ -1,5 +1,7 @@
 # FlightGearBrasil's Discord Bot
 
+[![Build Status](https://img.shields.io/badge/heroku-deployed-brightgreen?logo=heroku)](https://travis-ci.com/flightgearbrasil/fgbr-discord-bot-py) [![Build Status](https://img.shields.io/travis/com/flightgearbrasil/fgbr-discord-bot-py?logo=travis)](https://travis-ci.com/flightgearbrasil/fgbr-discord-bot-py) [![GNU General Public License](https://img.shields.io/github/license/flightgearbrasil/fgbr-discord-bot-py?logo=github)](http://www.gnu.org/licenses/gpl-3.0.en.html)
+
 ## Manual deploy and run
 
 - Required Python 3.7.3

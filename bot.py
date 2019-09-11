@@ -103,12 +103,6 @@ async def on_ready():
     game = discord.Game(name='Digite: !fgbr:ajuda para saber os comandos', type=2)
     await bot.change_presence(activity=game)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--test', dest='testing', action='store_const', const=True, default=None, help='Test bot script and shutdown')
-    parser.add_argument('--unittest', dest='testingunit', action='store_const', const=True, default=None, help='Test bot script and shutdown with unittest')
-    args = parser.parse_args()
-    if args.testingunit:
-        subprocess.call([sys.executable, '-m', 'unittest', 'discover', './tests'])
     if args.testing:
         await test()
 
@@ -241,5 +235,12 @@ async def test():
 ###################################
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--test', dest='testing', action='store_const', const=True, default=None, help='Test bot script and shutdown')
+    parser.add_argument('--unittest', dest='unittest', action='store_const', const=True, default=None, help='Test bot script and shutdown with unittest')
+    args = parser.parse_args()
+    if args.unittest:
+        subprocess.call([sys.executable, '-m', 'unittest', 'discover', './tests'])
+        exit(0)
     bot.run(BOT_TOKEN)
     exit(0)
