@@ -238,6 +238,7 @@ async def test():
         console_log(None, f'Error running test script: {e}')
         raise e
     await bot.logout()
+###################################
 
 if __name__ == '__main__':
     bot.run(BOT_TOKEN)
