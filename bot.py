@@ -14,6 +14,7 @@ from python_aisweb import AISWEB
 import json
 import argparse
 import requests_cache
+import subprocess
 
 ###################################
 #
@@ -109,7 +110,10 @@ async def on_ready():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--test', dest='testing', action='store_const', const=True, default=None, help='Test bot script and shutdown')
+    parser.add_argument('--unittest', dest='testingunit', action='store_const', const=True, default=None, help='Test bot script and shutdown with unittest')
     args = parser.parse_args()
+    if args.testingunit:
+        subprocess.call([sys.executable, '-m', 'unittest', 'discover', './tests'])
     if args.testing:
         await test()
 
