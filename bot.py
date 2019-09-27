@@ -100,7 +100,7 @@ async def on_ready():
     guilds_name = ','.join([guild.name for guild in bot.guilds])
     print (f'Servidores: {len(bot.guilds)} ({guilds_name})\n', '#'*20,'\n')
 
-    await bot.change_presence(activity=stream = discord.Streaming(name='Digite: !fgbr:ajuda para saber os comandos', url='https://twitch.tv/flightgearbrasil'))
+    await bot.change_presence(activity=discord.Streaming(name='Digite: !fgbr:ajuda para saber os comandos', url='https://twitch.tv/flightgearbrasil'))
 
     if args.testing:
         await test()
